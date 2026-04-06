@@ -1,48 +1,72 @@
 # Bitcoin Cash II Core Docker Stack
 
-This stack builds and runs `bitcoincashIId` from:
+This project builds and runs the bitcoincashII Core daemon inside Docker using a minimal Debian base.
 
-- https://github.com/BitcoincashII/bitcoincashII-core
+Source repository:  
+https://github.com/BitcoincashII/bitcoincashII-core
 
-It uses Debian `stable-slim` as the base image and compiles with wallet support enabled.
+---
 
-## What this stack does
+## Overview
 
-- Builds `bitcoincashIId`, `bitcoincashII-cli`, `bitcoincashII-tx`, and `bitcoincashII-wallet`
-- Enables wallet support during configure:
-  - `--enable-wallet`
-  - `--with-incompatible-bdb` (required on modern Debian packages for legacy Berkeley DB support)
-- Runs the daemon as non-root user `bitcoincashii`
-- Persists blockchain and wallet data in `./dot-bitcoincashii`
+This stack provides a reproducible environment to run a Bitcoin Cash II full node with wallet support enabled.
 
-## File layout
+### Features
 
-- `Dockerfile`: Multi-stage build (builder + runtime)
-- `docker-entrypoint.sh`: Creates `bitcoincashII.conf` if missing and starts daemon
-- `docker-compose.yml`: Single `coind` service for BCH2
-- `.env`: Runtime settings (ports, RPC auth, optional extra args)
+- Builds:
+  - bitcoincashIId (daemon)
+  - bitcoincashII-cli (RPC client)
+  - bitcoincashII-tx
+  - bitcoincashII-wallet
+- Wallet support enabled:
+  - --enable-wallet
+  - --with-incompatible-bdb (required for modern Debian compatibility)
+- Runs as non-root user (bitcoincashii)
+- Persistent blockchain + wallet storage via bind mount
+- Simple Docker Compose workflow
 
-## Quick start
+---
 
-1. Edit `.env` and set a strong RPC password:
+## Project Structure
+
+- Dockerfile — Multi-stage build (builder + runtime)
+- docker-entrypoint.sh — Initializes config and starts daemon
+- docker-compose.yml — Defines the `coind` service
+- .env — Runtime configuration (RPC, ports, etc.)
+
+---
+
+## Quick Start
+
+### 1. Configure environment
+
+Edit `.env` and set a strong RPC password:
 
 ```bash
 COIND_RPC_PASSWORD=replace_me_with_a_real_password
 ```
 
-2. Build and start:
+---
+
+### 2. Build and start the node
 
 ```bash
 docker compose up -d --build
 ```
 
-3. Check logs:
+---
+
+### 3. View logs
 
 ```bash
 docker compose logs -f coind
 ```
 
-4. Call RPC from host (if RPC port is published):
+---
+
+### 4. Call RPC from host (optional)
+
+If RPC port is exposed:
 
 ```bash
 curl --user "$COIND_RPC_USER:$COIND_RPC_PASSWORD" \
@@ -51,66 +75,131 @@ curl --user "$COIND_RPC_USER:$COIND_RPC_PASSWORD" \
   http://127.0.0.1:${COIND_RPC_PORT}
 ```
 
-## Data and config
+---
 
-Defaults in this stack:
+## Using the CLI (Recommended)
 
-- Data directory: `/home/bitcoincashii/.bitcoincashII`
-- Config file: `/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf`
-- Host bind mount: `./dot-bitcoincashii:/home/bitcoincashii/.bitcoincashII`
+The easiest way to interact with your node is via `bitcoincashII-cli` inside the container.
 
-On first start, the entrypoint writes a minimal config if one does not exist.
-
-## Ports
-
-Mainnet defaults:
-
-- P2P: `8339`
-- RPC: `8342`
-
-By default, only P2P is published to host in `docker-compose.yml`.
-RPC is exposed only inside the Compose network unless you uncomment the RPC port mapping.
-
-## Common commands
-
-Stop stack:
+### Basic usage
 
 ```bash
-docker compose down
+docker compose exec -u bitcoincashii coind bitcoincashII-cli \
+  -datadir=/home/bitcoincashii/.bitcoincashII \
+  -conf=/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf \
+  <command>
 ```
 
-Rebuild after changing Dockerfile or source ref:
+---
+
+### Example: Get blockchain info
 
 ```bash
-docker compose build --no-cache
-```
-
-Run CLI in the container:
-
-```bash
-docker compose exec coind bitcoincashII-cli \
+docker compose exec -u bitcoincashii coind bitcoincashII-cli \
   -datadir=/home/bitcoincashii/.bitcoincashII \
   -conf=/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf \
   getblockchaininfo
 ```
 
-## Build customization
+---
 
-`docker-compose.yml` passes build args you can change:
+### Example: Check wallet balance
 
-- `BITCOINCASHII_REPO_URL` (default official BCH2 repo)
-- `BITCOINCASHII_REF` (default `main`)
-- `MAKE_JOBS` (parallel compile jobs)
+```bash
+docker compose exec -u bitcoincashii coind bitcoincashII-cli \
+  -datadir=/home/bitcoincashii/.bitcoincashII \
+  -conf=/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf \
+  getbalance
+```
 
-Example:
+---
+
+### Example: Generate a new address
+
+```bash
+docker compose exec -u bitcoincashii coind bitcoincashII-cli \
+  -datadir=/home/bitcoincashii/.bitcoincashII \
+  -conf=/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf \
+  getnewaddress
+```
+
+---
+
+### List all available commands
+
+```bash
+docker compose exec -u bitcoincashii coind bitcoincashII-cli help
+```
+
+---
+
+## Data & Configuration
+
+- Container data dir:  
+  /home/bitcoincashii/.bitcoincashII
+
+- Config file:  
+  /home/bitcoincashii/.bitcoincashII/bitcoincashII.conf
+
+- Host mount:  
+  ./dot-bitcoincashii:/home/bitcoincashii/.bitcoincashII
+
+On first startup, a minimal config file is automatically created if missing.
+
+---
+
+## Ports
+
+Mainnet defaults:
+
+- P2P: 8339
+- RPC: 8342
+
+By default:
+- P2P is exposed to host
+- RPC is internal only (safer)
+
+To expose RPC, uncomment the port mapping in docker-compose.yml.
+
+---
+
+## Common Commands
+
+### Stop the stack
+
+```bash
+docker compose down
+```
+
+---
+
+### Rebuild from scratch
+
+```bash
+docker compose build --no-cache
+```
+
+---
+
+## Build Customization
+
+You can override build arguments in docker-compose.yml:
+
+- BITCOINCASHII_REPO_URL
+- BITCOINCASHII_REF
+- MAKE_JOBS
+
+### Example
 
 ```bash
 BITCOINCASHII_REF=v27.0.0 docker compose build
 ```
 
+---
+
 ## Notes
 
-- Wallet support is explicitly enabled.
-- `--with-incompatible-bdb` is used to build with distro Berkeley DB packages on Debian stable.
-- UPnP is disabled at build time (`--without-miniupnpc`) due upstream API incompatibility with current Debian stable `miniupnpc` headers.
-- Keep RPC credentials private; do not expose RPC publicly without firewall controls.
+- Wallet support is explicitly enabled
+- Uses --with-incompatible-bdb for Debian compatibility
+- UPnP is disabled (--without-miniupnpc) due to upstream incompatibility
+- Never expose RPC publicly without firewall protection

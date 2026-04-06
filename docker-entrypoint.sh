@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DATA_DIR="${BITCOINCASHII_DATA_DIR:-/home/bitcoincashii/.bitcoincashII}"
+CONF_FILE="${BITCOINCASHII_CONF:-$DATA_DIR/bitcoincashII.conf}"
+
+RPC_USER="${COIND_RPC_USER:-bitcoincashiirpc}"
+RPC_PASSWORD="${COIND_RPC_PASSWORD:-changeme}"
+P2P_PORT="${COIND_P2P_PORT:-8339}"
+RPC_PORT="${COIND_RPC_PORT:-8342}"
+RPC_BIND="${COIND_RPC_BIND:-0.0.0.0}"
+RPC_ALLOW_IP="${COIND_RPC_ALLOW_IP:-172.16.0.0/12}"
+TXINDEX="${COIND_TXINDEX:-1}"
+PRUNE="${COIND_PRUNE:-0}"
+MAXCONNECTIONS="${COIND_MAXCONNECTIONS:-64}"
+EXTRA_ARGS="${COIND_EXTRA_ARGS:-}"
+
+mkdir -p "${DATA_DIR}"
+chown -R bitcoincashii:bitcoincashii /home/bitcoincashii
+
+if [[ ! -f "${CONF_FILE}" ]]; then
+  cat > "${CONF_FILE}" <<EOF
+server=1
+daemon=0
+listen=1
+printtoconsole=1
+
+rpcuser=${RPC_USER}
+rpcpassword=${RPC_PASSWORD}
+rpcbind=${RPC_BIND}
+rpcallowip=${RPC_ALLOW_IP}
+rpcport=${RPC_PORT}
+
+port=${P2P_PORT}
+txindex=${TXINDEX}
+prune=${PRUNE}
+maxconnections=${MAXCONNECTIONS}
+wallet=wallet.dat
+EOF
+  chown bitcoincashii:bitcoincashii "${CONF_FILE}"
+fi
+
+chmod 600 "${CONF_FILE}"
+
+if [[ "${1:-}" == "bitcoincashIId" ]]; then
+  exec gosu bitcoincashii bitcoincashIId \
+    -datadir="${DATA_DIR}" \
+    -conf="${CONF_FILE}" \
+    ${EXTRA_ARGS}
+fi
+
+exec "$@"

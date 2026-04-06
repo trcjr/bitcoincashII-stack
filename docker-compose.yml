@@ -1,0 +1,58 @@
+services:
+  coind:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BITCOINCASHII_REPO_URL: "https://github.com/BitcoincashII/bitcoincashII-core.git"
+        BITCOINCASHII_REF: "main"
+        MAKE_JOBS: "4"
+    container_name: bitcoincashiid
+    restart: unless-stopped
+
+    environment:
+      BITCOINCASHII_DATA_DIR: "/home/bitcoincashii/.bitcoincashII"
+      BITCOINCASHII_CONF: "/home/bitcoincashii/.bitcoincashII/bitcoincashII.conf"
+
+      COIND_RPC_USER: "${COIND_RPC_USER}"
+      COIND_RPC_PASSWORD: "${COIND_RPC_PASSWORD}"
+
+      # Bitcoin Cash II mainnet defaults
+      COIND_P2P_PORT: "${COIND_P2P_PORT:-8339}"
+      COIND_RPC_PORT: "${COIND_RPC_PORT:-8342}"
+
+      # Keep RPC internal to Docker unless you intentionally publish it
+      COIND_RPC_BIND: "${COIND_RPC_BIND:-0.0.0.0}"
+      COIND_RPC_ALLOW_IP: "${COIND_RPC_ALLOW_IP:-0.0.0.0/0}"
+
+      # Optional extras
+      COIND_TXINDEX: "${COIND_TXINDEX:-1}"
+      COIND_PRUNE: "${COIND_PRUNE:-0}"
+      COIND_MAXCONNECTIONS: "${COIND_MAXCONNECTIONS:-64}"
+      COIND_EXTRA_ARGS: "${COIND_EXTRA_ARGS:-}"
+
+    ports:
+      - "${COIND_P2P_PORT:-8339}:${COIND_P2P_PORT:-8339}"
+      # Intentionally commented out so RPC stays private to the compose network.
+      # Uncomment only if you really want host access:
+      # - "${COIND_RPC_PORT:-8342}:${COIND_RPC_PORT:-8342}"
+
+
+    expose:
+      - "${COIND_P2P_PORT:-8339}"
+      - "${COIND_RPC_PORT:-8342}"
+
+    volumes:
+      - ./dot-bitcoincashii:/home/bitcoincashii/.bitcoincashII
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS --user \"$${COIND_RPC_USER}:$${COIND_RPC_PASSWORD}\" --data-binary '{\"jsonrpc\":\"1.0\",\"id\":\"health\",\"method\":\"getblockchaininfo\",\"params\":[]}' -H 'content-type: text/plain;' http://127.0.0.1:$${COIND_RPC_PORT}/ >/dev/null"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 20
+      start_period: 120s

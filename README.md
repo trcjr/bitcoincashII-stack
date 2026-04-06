@@ -146,6 +146,20 @@ docker compose exec -u bitcoincashii coind bitcoincashII-cli help
 
 On first startup, a minimal config file is automatically created if missing.
 
+Default bootstrap peers are also ensured in the config:
+
+- 144.202.73.66:8339 (Dallas, USA)
+- 108.61.190.83:8339 (Frankfurt, Germany)
+- 64.176.215.202:8339 (New Jersey, USA)
+- 45.32.138.29:8339 (Silicon Valley, USA)
+- 139.180.132.24:8339 (Singapore)
+
+To override this list, set `COIND_BOOTSTRAP_NODES` in `.env` as a comma-separated list:
+
+```bash
+COIND_BOOTSTRAP_NODES=144.202.73.66:8339,108.61.190.83:8339
+```
+
 ---
 
 ## Ports

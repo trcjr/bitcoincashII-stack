@@ -15,6 +15,21 @@ PRUNE="${COIND_PRUNE:-0}"
 MAXCONNECTIONS="${COIND_MAXCONNECTIONS:-64}"
 EXTRA_ARGS="${COIND_EXTRA_ARGS:-}"
 
+DEFAULT_BOOTSTRAP_NODES=(
+  "144.202.73.66:8339"
+  "108.61.190.83:8339"
+  "64.176.215.202:8339"
+  "45.32.138.29:8339"
+  "139.180.132.24:8339"
+)
+
+BOOTSTRAP_NODES=()
+if [[ -n "${COIND_BOOTSTRAP_NODES:-}" ]]; then
+  IFS=',' read -r -a BOOTSTRAP_NODES <<< "${COIND_BOOTSTRAP_NODES}"
+else
+  BOOTSTRAP_NODES=("${DEFAULT_BOOTSTRAP_NODES[@]}")
+fi
+
 mkdir -p "${DATA_DIR}"
 chown -R bitcoincashii:bitcoincashii /home/bitcoincashii
 
@@ -37,8 +52,18 @@ prune=${PRUNE}
 maxconnections=${MAXCONNECTIONS}
 wallet=wallet.dat
 EOF
-  chown bitcoincashii:bitcoincashii "${CONF_FILE}"
 fi
+
+for node in "${BOOTSTRAP_NODES[@]}"; do
+  node="${node//[[:space:]]/}"
+  [[ -z "${node}" ]] && continue
+  line="addnode=${node}"
+  if ! grep -Fxq "${line}" "${CONF_FILE}"; then
+    echo "${line}" >> "${CONF_FILE}"
+  fi
+done
+
+chown bitcoincashii:bitcoincashii "${CONF_FILE}"
 
 chmod 600 "${CONF_FILE}"
 

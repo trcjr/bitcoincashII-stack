@@ -29,10 +29,10 @@ This stack provides a reproducible environment to run a Bitcoin Cash II full nod
 
 ## Project Structure
 
-- Dockerfile — Multi-stage build (builder + runtime)
-- docker-entrypoint.sh — Initializes config and starts daemon
-- docker-compose.yml — Defines the `coind` service
-- .env — Runtime configuration (RPC, ports, etc.)
+- Dockerfile - Multi-stage build (builder + runtime)
+- docker-entrypoint.sh - Initializes config and starts daemon
+- docker-compose.yml - Defines the `coind` service
+- .env - Runtime configuration (RPC, ports, etc.)
 
 ---
 
@@ -224,7 +224,7 @@ BITCOINCASHII_REF=v27.0.0 docker compose build
 
 If this project helps you, donations are appreciated but never expected.
 
-Running infrastructure (nodes, storage, bandwidth) costs real resources — your support helps keep things online and decentralized.
+Running infrastructure (nodes, storage, bandwidth) costs real resources - your support helps keep things online and decentralized.
 
 ### Crypto
 

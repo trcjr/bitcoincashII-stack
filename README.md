@@ -217,3 +217,21 @@ BITCOINCASHII_REF=v27.0.0 docker compose build
 - Uses --with-incompatible-bdb for Debian compatibility
 - UPnP is disabled (--without-miniupnpc) due to upstream incompatibility
 - Never expose RPC publicly without firewall protection
+
+---
+
+## Donations
+
+If this project helps you, donations are appreciated but never expected.
+
+Running infrastructure (nodes, storage, bandwidth) costs real resources — your support helps keep things online and decentralized.
+
+### Crypto
+
+- BTC: bc1qvhay5salwnyey2cnel9xf8tkejqr79un9ew2g2
+- BTC (Lightning): alonemadam426@walletofsatoshi.com
+- ETH / EVM (ETH, Base, Arbitrum, etc): 0xf1d140F26f23C82D6Ef58E9F3892e45ad1BC4E4b
+- BCH2 (Bitcoin Cash II): bitcoincashii:qzc5qscxdvkw9974fv0hddx6zpdwczat9yz8rgm7df
+- USDC (ERC20 - Ethereum mainnet): 0xf1d140F26f23C82D6Ef58E9F3892e45ad1BC4E4b
+
+Donations do not grant special privileges or influence over the project.

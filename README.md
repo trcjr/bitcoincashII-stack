@@ -32,18 +32,26 @@ This stack provides a reproducible environment to run a Bitcoin Cash II full nod
 - Dockerfile - Multi-stage build (builder + runtime)
 - docker-entrypoint.sh - Initializes config and starts daemon
 - docker-compose.yml - Defines the `coind` service
-- .env - Runtime configuration (RPC, ports, etc.)
+- .env.example - Template for runtime configuration (copy to `.env` before use)
 
 ---
 
 ## Quick Start
 
+> **Security:** Before starting the node, you **must** change `COIND_RPC_PASSWORD` to a strong, unique password. The default value is a placeholder and must not be used in production.
+
 ### 1. Configure environment
 
-Edit `.env` and set a strong RPC password:
+Copy the example env file and set a strong RPC password:
 
 ```bash
-COIND_RPC_PASSWORD=replace_me_with_a_real_password
+cp .env.example .env
+```
+
+Then edit `.env` and replace the password:
+
+```bash
+COIND_RPC_PASSWORD=your_strong_random_password_here
 ```
 
 ---
@@ -206,8 +214,10 @@ You can override build arguments in docker-compose.yml:
 ### Example
 
 ```bash
-BITCOINCASHII_REF=v27.0.0 docker compose build
+BITCOINCASHII_REF=v28.0.0 docker compose build
 ```
+
+The default `BITCOINCASHII_REF` in `docker-compose.yml` is pinned to `v27.0.0`. Update it there to lock all builds to a specific release.
 
 ---
 

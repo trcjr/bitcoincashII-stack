@@ -235,3 +235,11 @@ Running infrastructure (nodes, storage, bandwidth) costs real resources - your s
 - USDC (ERC20 - Ethereum mainnet): 0xf1d140F26f23C82D6Ef58E9F3892e45ad1BC4E4b
 
 Donations do not grant special privileges or influence over the project.
+
+---
+
+## License
+
+MIT License - Copyright (c) 2026 Theodore Robert Campbell Jr
+
+See [LICENSE](LICENSE) for full terms.

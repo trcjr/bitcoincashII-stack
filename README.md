@@ -214,10 +214,10 @@ You can override build arguments in docker-compose.yml:
 ### Example
 
 ```bash
-BITCOINCASHII_REF=v28.0.0 docker compose build
+BITCOINCASHII_REF=v27.0.1 docker compose build
 ```
 
-The default `BITCOINCASHII_REF` in `docker-compose.yml` is pinned to `v27.0.0`. Update it there to lock all builds to a specific release.
+The default `BITCOINCASHII_REF` in `docker-compose.yml` is pinned to `v27.0.1`. Update it there to lock all builds to a specific release.
 
 ---
 

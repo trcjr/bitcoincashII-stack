@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
       args:
         BITCOINCASHII_REPO_URL: "https://github.com/BitcoincashII/bitcoincashII-core.git"
-        BITCOINCASHII_REF: "v27.0.1"
+        BITCOINCASHII_REF: "v27.0.2"
         MAKE_JOBS: "4"
     container_name: bitcoincashiid
     restart: unless-stopped

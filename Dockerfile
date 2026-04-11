@@ -2,7 +2,7 @@ FROM debian:bookworm-slim@sha256:02274f94f52336abd6ab4a8471ea09966613910ebaeed62
 
 ARG BITCOINCASHII_REPO_URL=https://github.com/BitcoincashII/bitcoincashII-core.git
 ARG BITCOINCASHII_REF=v27.0.2
-ARG MAKE_JOBS=1
+ARG MAKE_JOBS=2
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -21,8 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libevent-dev \
     libboost-dev \
     libsqlite3-dev \
-    libminiupnpc-dev \
-    libnatpmp-dev \
     libzmq3-dev \
     systemtap-sdt-dev \
     libqrencode-dev \
@@ -32,20 +30,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /tmp
 RUN test -n "${BITCOINCASHII_REPO_URL}" \
+ && test -n "${BITCOINCASHII_REF}" \
  && git clone --depth 1 --branch "${BITCOINCASHII_REF}" "${BITCOINCASHII_REPO_URL}" bitcoincashii-src
 
 WORKDIR /tmp/bitcoincashii-src
 RUN ./autogen.sh \
  && mkdir -p build \
  && cd build \
- && ../configure --without-gui --disable-tests --disable-bench --enable-wallet --with-incompatible-bdb --without-miniupnpc \
+ && ../configure \
+      --without-gui \
+      --disable-tests \
+      --disable-bench \
+      --enable-wallet \
+      --with-incompatible-bdb \
+      --without-miniupnpc \
  && make -j"${MAKE_JOBS}" \
  && strip --strip-unneeded \
-    ./src/bitcoincashIId \
-    ./src/bitcoincashII-cli \
-    ./src/bitcoincashII-tx \
-    ./src/bitcoincashII-wallet
-
+      ./src/bitcoincashIId \
+      ./src/bitcoincashII-cli \
+      ./src/bitcoincashII-tx \
+      ./src/bitcoincashII-wallet
 
 FROM debian:bookworm-slim@sha256:02274f94f52336abd6ab4a8471ea09966613910ebaeed622429dc7b4b780e804
 
@@ -56,14 +60,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gosu \
     bash \
     curl \
-    libevent-dev \
-    libboost-dev \
-    libsqlite3-dev \
-    libminiupnpc-dev \
-    libnatpmp1 \
+    libevent-2.1-7 \
+    libevent-pthreads-2.1-7 \
+    libsqlite3-0 \
     libzmq5 \
-    libdb-dev \
-    libdb++-dev \
+    libdb5.3++ \
+    libdb5.3 \
  && rm -rf /var/lib/apt/lists/*
 
 RUN useradd -m -u 1000 -s /bin/bash bitcoincashii

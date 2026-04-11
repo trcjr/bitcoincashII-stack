@@ -1,7 +1,7 @@
 FROM debian:bookworm-slim@sha256:02274f94f52336abd6ab4a8471ea09966613910ebaeed622429dc7b4b780e804 AS builder
 
 ARG BITCOINCASHII_REPO_URL=https://github.com/BitcoincashII/bitcoincashII-core.git
-ARG BITCOINCASHII_REF=main
+ARG BITCOINCASHII_REF=v27.0.2
 ARG MAKE_JOBS=1
 
 ENV DEBIAN_FRONTEND=noninteractive
